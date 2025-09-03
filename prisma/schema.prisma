@@ -1,0 +1,278 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid(2))
+  email     String   @unique
+  name      String?
+  password  String?
+  role      UserRole @default(USER)
+  active    Boolean  @default(true)
+  
+  // Email verification
+  emailVerified    DateTime?
+  emailVerificationToken String?
+  
+  // Account approval
+  accountStatus    AccountStatus @default(PENDING)
+  approvedBy       String?
+  approvedAt       DateTime?
+  
+  // GDPR Compliance
+  gdprConsentVersion String?
+  gdprConsentDate    DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sentNotifications     Notification[] @relation("SentNotifications")
+  receivedNotifications Notification[] @relation("ReceivedNotifications")
+
+  // Relations
+  createdGroups      Group[]             @relation("GroupCreator")
+  userGroups         UserGroup[]
+  createdEvents      Event[]             @relation("EventCreator")
+  eventSubscriptions EventSubscription[]
+  accounts           Account[]
+  sessions           Session[]
+  approver           User?               @relation("UserApprover", fields: [approvedBy], references: [id])
+  approvedUsers      User[]              @relation("UserApprover")
+  emailLogs          EmailLog[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid(2))
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid(2))
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model Group {
+  id          String   @id @default(cuid(2))
+  name        String
+  description String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  notifications Notification[]
+
+  // Relations
+  creator    User        @relation("GroupCreator", fields: [createdBy], references: [id])
+  userGroups UserGroup[]
+  events     Event[]
+
+  @@map("groups")
+}
+
+model UserGroup {
+  userId   String
+  groupId  String
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@map("user_groups")
+}
+
+model Event {
+  id          String   @id @default(cuid(2))
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  location    String?
+  groupId     String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  group              Group               @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creator            User                @relation("EventCreator", fields: [createdBy], references: [id])
+  eventSubscriptions EventSubscription[]
+
+  @@map("events")
+}
+
+model EventSubscription {
+  userId       String
+  eventId      String
+  subscribedAt DateTime @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([userId, eventId])
+  @@map("event_subscriptions")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum AccountStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum GroupRole {
+  MEMBER
+  ADMIN
+}
+
+model Notification {
+  id           String   @id @default(cuid())
+  subject      String
+  message      String   @db.Text
+  priority     String   @default("normal") // low, normal, high
+  groupId      String
+  senderId     String
+  recipientId  String?  // null for scheduled notifications not yet sent
+  status       String   @default("PENDING") // PENDING, SENT, FAILED, SCHEDULED
+  scheduledFor DateTime?
+  sentAt       DateTime?
+  errorMessage String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  group     Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  sender    User  @relation("SentNotifications", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User? @relation("ReceivedNotifications", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model EmailLog {
+  id           String   @id @default(cuid())
+  
+  // Email details
+  toEmail      String
+  fromEmail    String?
+  subject      String
+  bodyText     String?  @db.Text
+  bodyHtml     String?  @db.Text
+  
+  // Email type and context
+  emailType    EmailType
+  userId       String?  // Associated user (if applicable)
+  referenceId  String?  // Reference to related entity (event, group, etc.)
+  
+  // Delivery tracking
+  status       EmailStatus @default(PENDING)
+  attempts     Int      @default(0)
+  maxAttempts  Int      @default(3)
+  
+  // Success tracking
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  
+  // Error tracking
+  errorCode    String?
+  errorMessage String?  @db.Text
+  lastAttempt  DateTime?
+  nextRetry    DateTime?
+  
+  // Provider details
+  provider     String?  // e.g., "nodemailer", "sendgrid", "ses"
+  messageId    String?  // Provider message ID
+  
+  // Metadata
+  metadata     Json?    // Additional provider-specific data
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Indexes for performance
+  @@index([emailType])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([toEmail])
+  
+  @@map("email_logs")
+}
+
+enum EmailType {
+  VERIFICATION
+  PASSWORD_RESET
+  WELCOME
+  EVENT_NOTIFICATION
+  EVENT_REMINDER
+  EVENT_CANCELLED
+  GROUP_INVITATION
+  GROUP_NOTIFICATION
+  ADMIN_NOTIFICATION
+  GDPR_DATA_EXPORT
+  ACCOUNT_APPROVED
+  ACCOUNT_SUSPENDED
+  ACCOUNT_DELETED
+  SYSTEM_ALERT
+  OTHER
+}
+
+enum EmailStatus {
+  PENDING
+  SENDING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  FAILED
+  CANCELLED
+}
