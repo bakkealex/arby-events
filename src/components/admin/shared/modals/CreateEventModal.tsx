@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import BaseModal from "./BaseModal";
+import { Field } from "./components/Field";
+import { Input, Textarea, Select } from "./components/Inputs";
+import { ActionRow, Button } from "./components/Primitives";
 
 interface Group {
   id: string;
@@ -82,22 +85,16 @@ export default function CreateEventModal({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Group Selection - only show if no groupId is pre-selected */}
         {!groupId && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Group *
-            </label>
+          <Field label="Group *">
             {isLoadingGroups ? (
               <div className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                 Loading groups...
               </div>
             ) : (
-              <select
+              <Select
                 required
                 value={formData.groupId}
-                onChange={e =>
-                  setFormData({ ...formData, groupId: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onChange={e => setFormData({ ...formData, groupId: e.target.value })}
               >
                 <option value="">Select a group...</option>
                 {groups.map(group => (
@@ -105,100 +102,65 @@ export default function CreateEventModal({
                     {group.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             )}
-          </div>
+          </Field>
         )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Event Title *
-          </label>
-          <input
+        <Field label="Event Title *">
+          <Input
             type="text"
             required
             value={formData.title}
             onChange={e => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Title of the event"
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Description
-          </label>
-          <textarea
+        <Field label="Description">
+          <Textarea
             rows={3}
             value={formData.description}
-            onChange={e =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={e => setFormData({ ...formData, description: e.target.value })}
           />
-        </div>
+        </Field>
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Start Date & Time *
-            </label>
-            <input
+          <Field label="Start Date & Time *">
+            <Input
               type="datetime-local"
               required
               value={formData.startDate}
-              onChange={e =>
-                setFormData({ ...formData, startDate: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onChange={e => setFormData({ ...formData, startDate: e.target.value })}
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              End Date & Time *
-            </label>
-            <input
+          </Field>
+          <Field label="End Date & Time *">
+            <Input
               type="datetime-local"
               required
               value={formData.endDate}
-              onChange={e =>
-                setFormData({ ...formData, endDate: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onChange={e => setFormData({ ...formData, endDate: e.target.value })}
             />
-          </div>
+          </Field>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Location
-          </label>
-          <input
+        <Field label="Location">
+          <Input
             type="text"
             value={formData.location}
-            onChange={e =>
-              setFormData({ ...formData, location: e.target.value })
-            }
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={e => setFormData({ ...formData, location: e.target.value })}
             placeholder="Event location (optional)"
           />
-        </div>
+        </Field>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-          >
+        <ActionRow>
+          <Button type="button" variant="neutral" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isLoading || (!groupId && !formData.groupId)}
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-md hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 transition-colors"
-          >
+          </Button>
+          <Button type="submit" disabled={isLoading || (!groupId && !formData.groupId)} className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700">
             {isLoading ? "Creating..." : "Create Event"}
-          </button>
-        </div>
+          </Button>
+        </ActionRow>
       </form>
     </BaseModal>
   );

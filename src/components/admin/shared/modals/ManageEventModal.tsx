@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import BaseModal from "./BaseModal";
+import { Panel, Button, ActionRow, Badge } from "./components/Primitives";
+import { Field } from "./components/Field";
+import { Input, Textarea } from "./components/Inputs";
 import {
   ExclamationTriangleIcon,
   TrashIcon,
@@ -154,26 +157,15 @@ export default function ManageEventModal({
           <div className="space-y-6">
             {/* Event Status */}
             <div className="flex items-center justify-between mb-4">
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${status.color === "blue"
-                    ? "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
-                    : status.color === "green"
-                      ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
-                      : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  }`}
-              >
-                {status.label}
-              </span>
+              <Badge color={status.color as any}>{status.label}</Badge>
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 {event._count?.eventSubscriptions || 0} subscribers
               </div>
             </div>
 
             {/* Event Details */}
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                Event Information
-              </h3>
+            <Panel>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Event Information</h3>
               <dl className="grid grid-cols-1 gap-4">
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center">
@@ -258,31 +250,22 @@ export default function ManageEventModal({
                   </dd>
                 </div>
               </dl>
-            </div>
+            </Panel>
 
             {/* Actions */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button
-                onClick={() => setActiveAction("edit")}
-                className="flex items-center justify-center px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-              >
+              <Button onClick={() => setActiveAction("edit")} className="flex items-center justify-center">
                 <PencilIcon className="h-4 w-4 mr-2" />
                 Edit Event
-              </button>
-              <button
-                onClick={() => window.open(`/events/${event.id}`, "_blank")}
-                className="flex items-center justify-center px-4 py-2 bg-gray-600 dark:bg-gray-500 text-white rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
-              >
+              </Button>
+              <Button onClick={() => window.open(`/events/${event.id}`, "_blank")} variant="neutral" className="flex items-center justify-center">
                 <EyeIcon className="h-4 w-4 mr-2" />
                 View Public
-              </button>
-              <button
-                onClick={() => setActiveAction("delete")}
-                className="flex items-center justify-center px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
-              >
+              </Button>
+              <Button onClick={() => setActiveAction("delete")} variant="danger" className="flex items-center justify-center">
                 <TrashIcon className="h-4 w-4 mr-2" />
                 Delete Event
-              </button>
+              </Button>
             </div>
           </div>
         );
@@ -290,15 +273,10 @@ export default function ManageEventModal({
       case "edit":
         return (
           <div className="space-y-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4">
-              <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100 mb-2">
-                Edit Event
-              </h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                Update the event details. Changes will be visible to all
-                subscribers.
-              </p>
-            </div>
+            <Panel className="p-4 border-blue-200 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/10">
+              <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100 mb-2">Edit Event</h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300">Update the event details. Changes will be visible to all subscribers.</p>
+            </Panel>
 
             <form
               onSubmit={e => {
@@ -307,109 +285,59 @@ export default function ManageEventModal({
               }}
               className="space-y-4"
             >
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Event Title *
-                </label>
-                <input
+              <Field label="Event Title *">
+                <Input
                   type="text"
                   required
                   value={editFormData.title}
-                  onChange={e =>
-                    setEditFormData({ ...editFormData, title: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={e => setEditFormData({ ...editFormData, title: e.target.value })}
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Description
-                </label>
-                <textarea
+              <Field label="Description">
+                <Textarea
                   rows={3}
                   value={editFormData.description}
-                  onChange={e =>
-                    setEditFormData({
-                      ...editFormData,
-                      description: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={e => setEditFormData({ ...editFormData, description: e.target.value })}
                 />
-              </div>
+              </Field>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Start Date & Time *
-                  </label>
-                  <input
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Start Date & Time *">
+                  <Input
                     type="datetime-local"
                     required
                     value={editFormData.startDate}
-                    onChange={e =>
-                      setEditFormData({
-                        ...editFormData,
-                        startDate: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={e => setEditFormData({ ...editFormData, startDate: e.target.value })}
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    End Date & Time *
-                  </label>
-                  <input
+                </Field>
+                <Field label="End Date & Time *">
+                  <Input
                     type="datetime-local"
                     required
                     value={editFormData.endDate}
-                    onChange={e =>
-                      setEditFormData({
-                        ...editFormData,
-                        endDate: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={e => setEditFormData({ ...editFormData, endDate: e.target.value })}
                   />
-                </div>
+                </Field>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Location
-                </label>
-                <input
+              <Field label="Location">
+                <Input
                   type="text"
                   value={editFormData.location}
-                  onChange={e =>
-                    setEditFormData({
-                      ...editFormData,
-                      location: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={e => setEditFormData({ ...editFormData, location: e.target.value })}
                   placeholder="Event location (optional)"
                 />
-              </div>
+              </Field>
 
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setActiveAction("view")}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                >
+              <ActionRow>
+                <Button type="button" variant="neutral" onClick={() => setActiveAction("view")}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 transition-colors"
-                >
+                </Button>
+                <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
+                </Button>
+              </ActionRow>
             </form>
           </div>
         );
@@ -422,86 +350,62 @@ export default function ManageEventModal({
                 <div className="flex items-center space-x-3">
                   <ExclamationTriangleIcon className="h-8 w-8 text-red-500 dark:text-red-400" />
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                      Delete Event?
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Are you sure you want to delete &quot;{event.title}&quot;?
-                    </p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Delete Event?</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete &quot;{event.title}&quot;?</p>
                   </div>
                 </div>
 
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3">
-                  <p className="text-sm text-red-800 dark:text-red-200">
-                    <strong>This action will:</strong>
-                  </p>
+                <Panel className="p-3 border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/10">
+                  <p className="text-sm text-red-800 dark:text-red-200"><strong>This action will:</strong></p>
                   <ul className="text-sm text-red-700 dark:text-red-300 mt-2 space-y-1">
                     <li>• Permanently delete the event</li>
-                    <li>
-                      • Cancel all {event._count?.eventSubscriptions || 0}{" "}
-                      subscriber registrations
-                    </li>
+                    <li>• Cancel all {event._count?.eventSubscriptions || 0} subscriber registrations</li>
                     <li>• Remove the event from all calendars</li>
                     <li>• Send cancellation notifications to subscribers</li>
                     <li>• This action cannot be undone</li>
                   </ul>
-                </div>
+                </Panel>
 
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={() => setActiveAction("view")}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => setConfirmDelete(true)}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 dark:bg-red-500 rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
-                  >
-                    Continue
-                  </button>
-                </div>
+                <ActionRow>
+                  <Button variant="neutral" onClick={() => setActiveAction("view")}>Cancel</Button>
+                  <Button variant="danger" onClick={() => setConfirmDelete(true)}>Continue</Button>
+                </ActionRow>
               </>
             ) : (
               <>
                 <div className="text-center">
                   <ExclamationTriangleIcon className="h-12 w-12 text-red-500 dark:text-red-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    Final Confirmation
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Type <strong>DELETE</strong> to confirm deletion of &quot;
-                    {event.title}&quot;:
-                  </p>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Final Confirmation</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Type <strong>DELETE</strong> to confirm deletion of &quot;{event.title}&quot;:</p>
                 </div>
 
-                <input
+                <Input
                   type="text"
                   placeholder="Type DELETE to confirm"
                   value={deleteConfirmText}
                   onChange={e => setDeleteConfirmText(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
 
-                <div className="flex justify-end space-x-3">
-                  <button
+                <ActionRow>
+                  <Button
+                    variant="neutral"
                     onClick={() => {
                       setConfirmDelete(false);
                       setDeleteConfirmText("");
                       setActiveAction("view");
                     }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="danger"
                     onClick={handleDeleteEvent}
                     disabled={isLoading || deleteConfirmText !== "DELETE"}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 dark:bg-red-500 rounded-md hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="disabled:cursor-not-allowed"
                   >
                     {isLoading ? "Deleting..." : "Delete Event"}
-                  </button>
-                </div>
+                  </Button>
+                </ActionRow>
               </>
             )}
           </div>

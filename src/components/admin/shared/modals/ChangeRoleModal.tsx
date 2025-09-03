@@ -7,6 +7,8 @@ import ErrorMessage from "@/components/shared/ErrorMessage";
 import SuccessMessage from "@/components/shared/SuccessMessage";
 import { ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { UserRole } from "@prisma/client";
+import { Panel, ActionRow, Button, Badge } from "./components/Primitives";
+import { Field } from "./components/Field";
 
 interface ChangeRoleModalProps {
   open: boolean;
@@ -86,11 +88,11 @@ export default function ChangeRoleModal({
   const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
       case UserRole.ADMIN:
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+        return "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-700";
       case UserRole.USER:
-        return "bg-blue-100 text-blue-800 border-blue-300";
+        return "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/20 dark:text-blue-200 dark:border-blue-700";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
+        return "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600";
     }
   };
 
@@ -98,102 +100,76 @@ export default function ChangeRoleModal({
     <BaseModal open={open} onClose={onClose} title="Change User Role" size="md">
       <div className="space-y-4">
         {/* User Info */}
-        <div className="bg-gray-50 rounded-md p-4 dark:bg-gray-700">
+        <Panel>
           <div className="flex items-center space-x-3">
-            <ShieldCheckIcon className="h-6 w-6 text-blue-600" />
+            <ShieldCheckIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <div>
-              <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-                {user.name || user.email}
-              </h4>
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white">{user.name || user.email}</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Current role:
-                <span
-                  className={`ml-2 px-2 py-1 text-xs rounded-full border ${getRoleBadgeColor(user.role as UserRole)}`}
-                >
-                  {user.role}
-                </span>
+                Current role: <Badge color={user.role === UserRole.ADMIN ? "yellow" : "blue"}>{user.role}</Badge>
               </p>
             </div>
           </div>
-        </div>
+        </Panel>
 
         {/* Role Selection Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Select new role:
-            </label>
-
+          <Field label="Select new role:">
             <div className="space-y-3">
-              {Object.values(UserRole).map(role => (
-                <label
-                  key={role}
-                  className={`flex items-start space-x-3 p-3 border rounded-md cursor-pointer transition-colors ${
-                    newRole === role
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+              {Object.values(UserRole).map((role) => {
+                const selected = newRole === role;
+                return (
+                  <label
+                    key={role}
+                    className={`flex items-start space-x-3 p-3 border rounded-md cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-blue-200 dark:focus-within:ring-blue-700 ${selected
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400"
                       : "border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="role"
-                    value={role}
-                    checked={newRole === role}
-                    onChange={e => setNewRole(e.target.value as UserRole)}
-                    className="mt-1 text-blue-600 focus:ring-blue-500"
-                    disabled={loading}
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full border font-medium ${getRoleBadgeColor(role)}`}
-                      >
-                        {role}
-                      </span>
-                      {role === user.role && (
-                        <span className="text-xs text-gray-500">(current)</span>
-                      )}
+                      }`}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      value={role}
+                      checked={newRole === role}
+                      onChange={(e) => setNewRole(e.target.value as UserRole)}
+                      className="mt-1 accent-blue-600 dark:accent-blue-400 focus:ring-blue-500 dark:focus:ring-blue-700"
+                      disabled={loading}
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <Badge color={role === UserRole.ADMIN ? "yellow" : "blue"}>{role}</Badge>
+                        {role === user.role && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">(current)</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{getRoleDescription(role as UserRole)}</p>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {getRoleDescription(role)}
-                    </p>
-                  </div>
-                </label>
-              ))}
+                  </label>
+                );
+              })}
             </div>
-          </div>
+          </Field>
 
           {/* Warning for Admin Role */}
           {newRole === UserRole.ADMIN && user.role !== UserRole.ADMIN && (
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-              <p className="text-sm text-yellow-800">
-                <strong>Warning:</strong> Admin users have full access to all
-                platform features, including the ability to manage other users
-                and sensitive data.
+            <Panel className="p-3 border-yellow-200 dark:border-yellow-900/40 bg-yellow-50 dark:bg-yellow-900/10">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Warning:</strong> Admin users have full access to all platform features, including the ability to manage other users and sensitive data.
               </p>
-            </div>
+            </Panel>
           )}
 
           {error && <ErrorMessage message={error} />}
           {successMessage && <SuccessMessage message={successMessage} />}
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
-              disabled={loading}
-            >
+          <ActionRow>
+            <Button type="button" variant="neutral" onClick={onClose} disabled={loading}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || newRole === user.role}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
+            </Button>
+            <Button type="submit" disabled={loading || newRole === user.role}>
               {loading ? "Changing..." : "Change Role"}
-            </button>
-          </div>
+            </Button>
+          </ActionRow>
         </form>
       </div>
     </BaseModal>

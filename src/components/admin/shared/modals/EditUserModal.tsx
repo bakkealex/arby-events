@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import BaseModal from "./BaseModal";
+import { Field } from "./components/Field";
+import { Input, Select, Checkbox } from "./components/Inputs";
+import { ActionRow, Button } from "./components/Primitives";
 import useUserManagement from "@/hooks/useUserManagement";
 import ErrorMessage from "@/components/shared/ErrorMessage";
 import SuccessMessage from "@/components/shared/SuccessMessage";
@@ -75,63 +78,45 @@ export default function EditUserModal({
   return (
     <BaseModal open={open} onClose={onClose} title="Edit User" size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Name *
-          </label>
-          <input
+        <Field label="Name *">
+          <Input
             type="text"
             required
             value={formData.name}
             onChange={e => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             disabled={loading}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email *
-          </label>
-          <input
+        <Field label="Email *">
+          <Input
             type="email"
             required
             value={formData.email}
             onChange={e => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             disabled={loading}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Role *
-          </label>
-          <select
+        <Field label="Role *">
+          <Select
             value={formData.role}
-            onChange={e =>
-              setFormData({ ...formData, role: e.target.value as UserRole })
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            onChange={e => setFormData({ ...formData, role: e.target.value as UserRole })}
             disabled={loading}
           >
             <option value={UserRole.USER}>User</option>
             <option value={UserRole.ADMIN}>Admin</option>
-          </select>
-        </div>
+          </Select>
+        </Field>
 
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
+          <Checkbox
             id="active"
             checked={formData.active}
-            onChange={e =>
-              setFormData({ ...formData, active: e.target.checked })
-            }
+            onChange={e => setFormData({ ...formData, active: e.currentTarget.checked })}
             disabled={loading}
-            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
-          <label htmlFor="active" className="text-sm font-medium text-gray-700">
+          <label htmlFor="active" className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Active Account
           </label>
         </div>
@@ -139,23 +124,14 @@ export default function EditUserModal({
         {error && <ErrorMessage message={error} />}
         {successMessage && <SuccessMessage message={successMessage} />}
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
-            disabled={loading}
-          >
+        <ActionRow>
+          <Button type="button" variant="neutral" onClick={onClose} disabled={loading}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
+          </Button>
+          <Button type="submit" disabled={loading}>
             {loading ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
+          </Button>
+        </ActionRow>
       </form>
     </BaseModal>
   );

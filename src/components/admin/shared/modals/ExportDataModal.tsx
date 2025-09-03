@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
 import BaseModal from "./BaseModal";
+import { Field } from "./components/Field";
+import { Input, Select, Checkbox } from "./components/Inputs";
+import { Panel, ActionRow, Button } from "./components/Primitives";
 import {
   DocumentArrowDownIcon,
   TableCellsIcon,
@@ -28,6 +31,18 @@ export default function ExportDataModal({
     customEndDate: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const isCustomRange = exportOptions.dateRange === "custom";
+  const isCustomRangeInvalid =
+    isCustomRange && (
+      !exportOptions.customStartDate ||
+      !exportOptions.customEndDate ||
+      new Date(exportOptions.customStartDate) > new Date(exportOptions.customEndDate)
+    );
+  const nothingSelected =
+    !exportOptions.includeMembers &&
+    !exportOptions.includeEvents &&
+    !exportOptions.includeSubscriptions;
+  const isExportDisabled = isLoading || nothingSelected || isCustomRangeInvalid;
 
   const handleExport = async () => {
     setIsLoading(true);
@@ -101,10 +116,7 @@ export default function ExportDataModal({
     >
       <div className="space-y-6">
         {/* Format Selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Export Format
-          </label>
+        <Field label="Export Format">
           <div className="grid grid-cols-3 gap-3">
             {formatOptions.map(format => (
               <button
@@ -116,85 +128,66 @@ export default function ExportDataModal({
                     format: format.value as any,
                   })
                 }
-                className={`p-3 border rounded-lg text-center transition-colors ${
-                  exportOptions.format === format.value
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "border-gray-300 hover:border-gray-400"
-                }`}
+                className={`p-3 border rounded-lg text-center transition-colors ${exportOptions.format === format.value
+                  ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-900/20 dark:text-blue-200"
+                  : "border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-white"
+                  }`}
               >
                 <format.icon className="h-6 w-6 mx-auto mb-1" />
                 <div className="text-sm font-medium">{format.label}</div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   {format.description}
                 </div>
               </button>
             ))}
           </div>
-        </div>
+        </Field>
 
         {/* Data Inclusion Options */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Include Data
-          </label>
+        <Field label="Include Data">
           <div className="space-y-2">
             <label className="flex items-center">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={exportOptions.includeMembers}
                 onChange={e =>
                   setExportOptions({
                     ...exportOptions,
-                    includeMembers: e.target.checked,
+                    includeMembers: e.currentTarget.checked,
                   })
                 }
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">
-                Member information and roles
-              </span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Member information and roles</span>
             </label>
             <label className="flex items-center">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={exportOptions.includeEvents}
                 onChange={e =>
                   setExportOptions({
                     ...exportOptions,
-                    includeEvents: e.target.checked,
+                    includeEvents: e.currentTarget.checked,
                   })
                 }
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">
-                Event details and schedules
-              </span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Event details and schedules</span>
             </label>
             <label className="flex items-center">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={exportOptions.includeSubscriptions}
                 onChange={e =>
                   setExportOptions({
                     ...exportOptions,
-                    includeSubscriptions: e.target.checked,
+                    includeSubscriptions: e.currentTarget.checked,
                   })
                 }
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">
-                Event subscriptions and attendance
-              </span>
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Event subscriptions and attendance</span>
             </label>
           </div>
-        </div>
+        </Field>
 
         {/* Date Range */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Date Range
-          </label>
-          <select
+        <Field label="Date Range">
+          <Select
             value={exportOptions.dateRange}
             onChange={e =>
               setExportOptions({
@@ -202,21 +195,21 @@ export default function ExportDataModal({
                 dateRange: e.target.value as any,
               })
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+            className="mb-3"
           >
             <option value="all">All time</option>
             <option value="last30">Last 30 days</option>
             <option value="last90">Last 90 days</option>
             <option value="custom">Custom range</option>
-          </select>
+          </Select>
 
           {exportOptions.dateRange === "custom" && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
+                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
                   Start Date
                 </label>
-                <input
+                <Input
                   type="date"
                   value={exportOptions.customStartDate}
                   onChange={e =>
@@ -225,14 +218,13 @@ export default function ExportDataModal({
                       customStartDate: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
+                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
                   End Date
                 </label>
-                <input
+                <Input
                   type="date"
                   value={exportOptions.customEndDate}
                   onChange={e =>
@@ -241,19 +233,23 @@ export default function ExportDataModal({
                       customEndDate: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              {isCustomRangeInvalid && (
+                <p className="col-span-2 text-sm text-red-600 dark:text-red-300">
+                  Please select a valid date range where Start Date is before or equal to End Date.
+                </p>
+              )}
             </div>
           )}
-        </div>
+        </Field>
 
         {/* Export Summary */}
-        <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">
+        <Panel className="p-3">
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Export Summary
           </h4>
-          <ul className="text-sm text-gray-600 space-y-1">
+          <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
             <li>• Format: {exportOptions.format.toUpperCase()}</li>
             <li>
               • Date range:{" "}
@@ -272,29 +268,20 @@ export default function ExportDataModal({
                 .join(", ")}
             </li>
           </ul>
-        </div>
+        </Panel>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-          >
+        <ActionRow>
+          <Button type="button" variant="neutral" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleExport}
-            disabled={
-              isLoading ||
-              (!exportOptions.includeMembers &&
-                !exportOptions.includeEvents &&
-                !exportOptions.includeSubscriptions)
-            }
-            className="px-4 py-2 text-sm font-medium text-white bg-gray-600 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isExportDisabled}
+            className="bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700"
           >
             {isLoading ? "Exporting..." : "Export Data"}
-          </button>
-        </div>
+          </Button>
+        </ActionRow>
       </div>
     </BaseModal>
   );

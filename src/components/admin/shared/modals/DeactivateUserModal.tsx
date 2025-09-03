@@ -6,6 +6,9 @@ import useUserManagement from "@/hooks/useUserManagement";
 import ErrorMessage from "@/components/shared/ErrorMessage";
 import SuccessMessage from "@/components/shared/SuccessMessage";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { Field } from "./components/Field";
+import { Input } from "./components/Inputs";
+import { Panel, ActionRow, Button } from "./components/Primitives";
 
 interface DeactivateUserModalProps {
   open: boolean;
@@ -73,80 +76,54 @@ export default function DeactivateUserModal({
     >
       <div className="space-y-4">
         {/* Warning */}
-        <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-md">
-          <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mt-0.5 flex-shrink-0" />
-          <div>
-            <h3 className="text-sm font-medium text-red-800">
-              This will deactivate the user account
-            </h3>
-            <p className="text-sm text-red-700 mt-1">
-              The user will not be able to log in until their account is
-              reactivated. All their data and group memberships will be
-              preserved.
-            </p>
+        <Panel className="p-4 border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/10">
+          <div className="flex items-start space-x-3">
+            <ExclamationTriangleIcon className="h-6 w-6 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">This will deactivate the user account</h3>
+              <p className="text-sm text-red-700 dark:text-red-200 mt-1">
+                The user will not be able to log in until their account is reactivated. All their data and group memberships will be preserved.
+              </p>
+            </div>
           </div>
-        </div>
+        </Panel>
 
         {/* User Details */}
-        <div className="bg-gray-50 rounded-md p-4 dark:bg-gray-700">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-            User to deactivate:
-          </h4>
+        <Panel>
+          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">User to deactivate:</h4>
           <div className="space-y-1">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              <span className="font-medium">Name:</span>{" "}
-              {user.name || "No name"}
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              <span className="font-medium">Email:</span> {user.email}
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              <span className="font-medium">Role:</span> {user.role}
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300"><span className="font-medium">Name:</span> {user.name || "No name"}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300"><span className="font-medium">Email:</span> {user.email}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300"><span className="font-medium">Role:</span> {user.role}</p>
           </div>
-        </div>
+        </Panel>
 
         {/* Confirmation Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              To confirm deactivation, please type the user&apos;s email address:
-            </label>
-            <input
+          <Field label="To confirm deactivation, please type the user's email address:">
+            <Input
               type="text"
               value={confirmation}
               onChange={e => setConfirmation(e.target.value)}
               placeholder={user.email}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               disabled={loading}
             />
             {confirmation && !isValidConfirmation && (
-              <p className="text-sm text-red-600 mt-1">
-                Email address does not match
-              </p>
+              <p className="text-sm text-red-600 dark:text-red-300 mt-1">Email address does not match</p>
             )}
-          </div>
+          </Field>
 
           {error && <ErrorMessage message={error} />}
           {successMessage && <SuccessMessage message={successMessage} />}
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
-              disabled={loading}
-            >
+          <ActionRow>
+            <Button type="button" variant="neutral" onClick={handleClose} disabled={loading}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !isValidConfirmation}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
-            >
+            </Button>
+            <Button type="submit" variant="danger" disabled={loading || !isValidConfirmation}>
               {loading ? "Deactivating..." : "Deactivate User"}
-            </button>
-          </div>
+            </Button>
+          </ActionRow>
         </form>
       </div>
     </BaseModal>

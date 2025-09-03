@@ -5,6 +5,9 @@ import BaseModal from "./BaseModal";
 import useUserManagement from "@/hooks/useUserManagement";
 import ErrorMessage from "@/components/shared/ErrorMessage";
 import SuccessMessage from "@/components/shared/SuccessMessage";
+import { Field } from "./components/Field";
+import { Input, Checkbox } from "./components/Inputs";
+import { ActionRow, Button } from "./components/Primitives";
 
 interface CreateUserModalProps {
   open: boolean;
@@ -67,46 +70,29 @@ export default function CreateUserModal({
   return (
     <BaseModal open={open} onClose={onClose} title="Create New User" size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Name *
-          </label>
-          <input
+        <Field label="Name *">
+          <Input
             type="text"
             required
             value={formData.name}
             onChange={e => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             disabled={loading}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Email *
-          </label>
-          <input
+        <Field label="Email *">
+          <Input
             type="email"
             required
             value={formData.email}
             onChange={e => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             disabled={loading}
           />
-        </div>
+        </Field>
 
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="sendEmail"
-            checked={sendEmail}
-            onChange={e => setSendEmail(e.target.checked)}
-            disabled={loading}
-          />
-          <label
-            htmlFor="sendEmail"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
+          <Checkbox id="sendEmail" checked={sendEmail} onChange={e => setSendEmail(e.currentTarget.checked)} disabled={loading} />
+          <label htmlFor="sendEmail" className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Send login credentials via email
           </label>
         </div>
@@ -114,23 +100,14 @@ export default function CreateUserModal({
         {error && <ErrorMessage message={error} />}
         {successMessage && <SuccessMessage message={successMessage} />}
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
-            disabled={loading}
-          >
+        <ActionRow>
+          <Button type="button" onClick={onClose} variant="neutral" disabled={loading}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50"
-          >
+          </Button>
+          <Button type="submit" className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600" disabled={loading}>
             {loading ? "Creating..." : "Create User"}
-          </button>
-        </div>
+          </Button>
+        </ActionRow>
       </form>
     </BaseModal>
   );
