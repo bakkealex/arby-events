@@ -190,11 +190,10 @@ export default function UsersTable({ users }: UsersTableProps) {
             onClick={() =>
               setStatusFilter(statusFilter === "active" ? "all" : "active")
             }
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              statusFilter === "active"
-                ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
-            }`}
+            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${statusFilter === "active"
+              ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
+              }`}
           >
             <EyeIcon className="h-3 w-3 mr-1" />
             {statusFilter === "active" ? "Show All" : "Active Only"}
@@ -206,11 +205,10 @@ export default function UsersTable({ users }: UsersTableProps) {
                   statusFilter === "inactive" ? "active" : "inactive"
                 )
               }
-              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                statusFilter === "inactive"
-                  ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
-              }`}
+              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${statusFilter === "inactive"
+                ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
+                }`}
             >
               <EyeSlashIcon className="h-3 w-3 mr-1" />
               {statusFilter === "inactive"
@@ -262,17 +260,15 @@ export default function UsersTable({ users }: UsersTableProps) {
             {filteredAndSortedUsers.map(user => (
               <tr
                 key={user.id}
-                className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                  user.active === false ? "opacity-60" : ""
-                }`}
+                className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${user.active === false ? "opacity-60" : ""
+                  }`}
               >
                 <td className="px-6 py-4">
                   <div
-                    className={`text-sm font-medium ${
-                      user.active === false
-                        ? "text-gray-500 dark:text-gray-400"
-                        : "text-gray-900 dark:text-white"
-                    }`}
+                    className={`text-sm font-medium ${user.active === false
+                      ? "text-gray-500 dark:text-gray-400"
+                      : "text-gray-900 dark:text-white"
+                      }`}
                   >
                     {user.name || "No name"}
                     {user.active === false && (
@@ -283,69 +279,74 @@ export default function UsersTable({ users }: UsersTableProps) {
                   </div>
                 </td>
                 <td
-                  className={`px-6 py-4 text-sm ${
-                    user.active === false
-                      ? "text-gray-500 dark:text-gray-400"
-                      : "text-gray-900 dark:text-white"
-                  }`}
+                  className={`px-6 py-4 text-sm ${user.active === false
+                    ? "text-gray-500 dark:text-gray-400"
+                    : "text-gray-900 dark:text-white"
+                    }`}
                 >
                   {user.email}
                 </td>
                 <td className="px-6 py-4">
-                  <div className="flex flex-col space-y-1">
-                    {/* Account Status */}
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full w-fit ${
-                        user.accountStatus === "APPROVED"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : user.accountStatus === "PENDING"
+                  <div className="flex items-center">
+                    {(() => {
+                      const parts: string[] = [];
+                      const isActive = user.active !== false;
+                      parts.push(isActive ? "Active" : "Inactive");
+                      if (user.accountStatus && user.accountStatus !== "APPROVED") {
+                        parts.push(user.accountStatus);
+                      }
+                      if (!user.emailVerified) {
+                        parts.push("Email Unverified");
+                      }
+
+                      // Determine the severity color: red > orange > gray > blue
+                      const severity: "red" | "orange" | "gray" | "blue" = (() => {
+                        if (user.accountStatus === "SUSPENDED" || !user.emailVerified) {
+                          return "red";
+                        }
+                        if (user.accountStatus === "PENDING") {
+                          return "orange";
+                        }
+                        if (!isActive) {
+                          return "gray";
+                        }
+                        return "blue";
+                      })();
+
+                      const colorClasses =
+                        severity === "red"
+                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          : severity === "orange"
                             ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                            : user.accountStatus === "SUSPENDED"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                      }`}
-                    >
-                      {user.accountStatus || "UNKNOWN"}
-                    </span>
-                    {/* Active/Inactive Status */}
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full w-fit ${
-                        user.active !== false
-                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                      }`}
-                    >
-                      {user.active !== false ? "Active" : "Inactive"}
-                    </span>
-                    {/* Email Verification Status */}
-                    {user.emailVerified ? (
-                      <span className="px-2 py-1 text-xs rounded-full w-fit bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        Email Verified
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 text-xs rounded-full w-fit bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                        Email Unverified
-                      </span>
-                    )}
+                            : severity === "gray"
+                              ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                              : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+
+                      return (
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full w-fit ${colorClasses}`}
+                        >
+                          {parts.join(", ")}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </td>
                 <td className="px-6 py-4">
                   <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      user.role === "ADMIN"
-                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                        : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                    }`}
+                    className={`px-2 py-1 text-xs rounded-full ${user.role === "ADMIN"
+                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                      : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      }`}
                   >
                     {user.role}
                   </span>
                 </td>
                 <td
-                  className={`px-6 py-4 text-sm ${
-                    user.active === false
-                      ? "text-gray-500 dark:text-gray-400"
-                      : "text-gray-900 dark:text-white"
-                  }`}
+                  className={`px-6 py-4 text-sm ${user.active === false
+                    ? "text-gray-500 dark:text-gray-400"
+                    : "text-gray-900 dark:text-white"
+                    }`}
                 >
                   {user._count?.userGroups ?? 0}
                 </td>

@@ -17,7 +17,7 @@ interface UserQuickActionsProps {
     name: string | null;
     email: string;
     role: string;
-    active?: boolean;
+    active: boolean;
   };
 }
 
@@ -81,11 +81,10 @@ export default function UserQuickActions({ user }: UserQuickActionsProps) {
               Current Status:
             </span>
             <span
-              className={`px-2 py-1 text-xs rounded-full ${
-                isUserActive
+              className={`px-2 py-1 text-xs rounded-full ${isUserActive
                   ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                   : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-              }`}
+                }`}
             >
               {isUserActive ? "Active" : "Inactive"}
             </span>

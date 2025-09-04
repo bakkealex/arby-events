@@ -7,6 +7,7 @@ import {
 
 interface UserStatsCardsProps {
   user: {
+    active: boolean;
     _count: {
       userGroups: number;
       createdEvents: number;
@@ -117,8 +118,8 @@ export default function UserStatsCards({ user }: UserStatsCardsProps) {
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                   Account Status
                 </dt>
-                <dd className="text-lg font-medium text-green-600 dark:text-green-200">
-                  Active
+                <dd className={`text-lg font-medium ${user.active ? 'text-green-600 dark:text-green-200' : 'text-red-600 dark:text-red-200'}`}>
+                  {user.active ? "Active" : "Inactive"}
                 </dd>
               </dl>
             </div>
