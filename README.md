@@ -1,3 +1,7 @@
+# Note
+
+This project is a work in progress and is not feature-complete.
+
 # Arby Events - Event Management Platform
 
 A full-stack web application for managing events and group memberships with email notifications and calendar integration.
