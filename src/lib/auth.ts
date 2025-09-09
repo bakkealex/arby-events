@@ -1,4 +1,5 @@
 import { NextAuthOptions } from "next-auth";
+import type { Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -8,7 +9,7 @@ import bcrypt from "bcryptjs";
 import { UserRole } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any, // Type assertion for compatibility
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -99,24 +100,34 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
+      // ensure token carries basic user info on sign-in
       if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
-        token.active = (user as any).active;
+        token.id = (user as any).id ?? token.id;
+        token.name = (user as any).name ?? token.name;
+        token.email = (user as any).email ?? token.email;
+        token.role = (user as any).role ?? token.role;
+        token.active = (user as any).active ?? token.active;
       }
 
-      // Handle session updates
-      if (trigger === "update" && session) {
-        token = { ...token, ...session };
+      // Handle client-side session.update() calls: copy only expected fields
+      if (trigger === "update" && session?.user) {
+        const sUser = session.user as Partial<typeof session.user>;
+        if (typeof sUser.name === "string") token.name = sUser.name;
+        if (typeof sUser.email === "string") token.email = sUser.email;
+        if (typeof sUser.role !== "undefined") token.role = sUser.role as any;
+        if (typeof sUser.active === "boolean")
+          token.active = sUser.active as any;
       }
 
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
-        session.user.active = token.active as boolean;
+        session.user.id = (token.id as string) ?? session.user.id;
+        session.user.name = (token.name as string) ?? session.user.name;
+        session.user.email = (token.email as string) ?? session.user.email;
+        session.user.role = (token.role as UserRole) ?? session.user.role;
+        session.user.active = (token.active as boolean) ?? session.user.active;
       }
       return session;
     },
