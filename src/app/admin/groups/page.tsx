@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth-utils";
 import { UserRole } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import AdminHeader from "@/components/admin/shared/AdminHeader";
 import GroupsTable from "@/components/admin/group/GroupsTable";
 
@@ -13,52 +14,31 @@ export default async function AdminGroupsPage() {
     redirect("/auth/signin");
   }
 
-  // Fetch all groups with creator info, member count, and event count
-  const groupsRaw = await prisma.group.findMany({
-    include: {
-      creator: { select: { id: true, name: true, email: true } },
-      userGroups: true,
-      events: true,
-      _count: {
-        select: {
-          userGroups: true,
-          events: true,
-        },
-      },
+  // Get session for API call
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    redirect("/auth/signin");
+  }
+
+  // Fetch groups using the API endpoint with admin parameters
+  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+
+  // For admin view, get all groups with hidden ones included
+  const response = await fetch(`${baseUrl}/api/groups?limit=1000&include_hidden=true`, {
+    headers: {
+      "Content-Type": "application/json",
+      // In Next.js 13+, we can pass the session via headers for internal API calls
+      Authorization: `Bearer ${session.user.id}`,
     },
-    orderBy: { createdAt: "desc" },
+    cache: "no-store", // Always fetch fresh data for admin
   });
 
-  // Transform groups to match client-side expectations
-  const groups = groupsRaw.map(group => ({
-    ...group,
-    createdAt: group.createdAt.toISOString(),
-    updatedAt: group.updatedAt.toISOString(),
-    // Keep the _count from Prisma
-    // Keep the userGroups and events arrays for filtering logic if needed
-    userGroups: group.userGroups.map(ug => ({
-      ...ug,
-      joinedAt:
-        ug.joinedAt instanceof Date ? ug.joinedAt.toISOString() : ug.joinedAt,
-    })),
-    events: group.events.map(ev => ({
-      ...ev,
-      startDate:
-        ev.startDate instanceof Date
-          ? ev.startDate.toISOString()
-          : ev.startDate,
-      endDate:
-        ev.endDate instanceof Date ? ev.endDate.toISOString() : ev.endDate,
-      createdAt:
-        ev.createdAt instanceof Date
-          ? ev.createdAt.toISOString()
-          : ev.createdAt,
-      updatedAt:
-        ev.updatedAt instanceof Date
-          ? ev.updatedAt.toISOString()
-          : ev.updatedAt,
-    })),
-  }));
+  if (!response.ok) {
+    throw new Error(`Failed to fetch groups: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const groups = data.groups || [];
 
   // Breadcrumbs
   const breadcrumbs = [

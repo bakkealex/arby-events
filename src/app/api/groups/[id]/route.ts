@@ -71,10 +71,15 @@ export async function GET(
           groupId: id,
         },
       },
+      select: { role: true },
     });
 
-    // Only allow access if user is member, group admin, or platform admin
-    if (!userGroup && session.role !== UserRole.ADMIN) {
+    // Allow access to: any group member, group admins, or site admins
+    const hasAccess =
+      session.role === UserRole.ADMIN || // Site admin
+      userGroup !== null; // Any group member (including group admins)
+
+    if (!hasAccess) {
       return NextResponse.json(
         { error: "Access denied. You are not a member of this group." },
         { status: 403 }
@@ -136,7 +141,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Group not found" }, { status: 404 });
     }
 
-    // Check permissions
+    // Check permissions - only group admins and site admins can edit
     const canEdit =
       session.role === UserRole.ADMIN ||
       (await isGroupAdmin(session.userId, id));
@@ -145,7 +150,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "Access denied. You must be a group administrator to edit this group.",
+            "Access denied. You must be a group administrator or site administrator to edit this group.",
         },
         { status: 403 }
       );
@@ -234,8 +239,8 @@ export async function DELETE(
       );
     }
 
-    // Get current user - only admins can delete groups
-    await requireRole(UserRole.ADMIN);
+    // Get current user - group admins and site admins can delete groups
+    const session = await requireRole(UserRole.USER);
 
     // Check if group exists
     const existingGroup = await prisma.group.findUnique({
@@ -254,6 +259,21 @@ export async function DELETE(
 
     if (!existingGroup) {
       return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    }
+
+    // Check permissions - only group admins and site admins can delete
+    const canDelete =
+      session.role === UserRole.ADMIN ||
+      (await isGroupAdmin(session.userId, id));
+
+    if (!canDelete) {
+      return NextResponse.json(
+        {
+          error:
+            "Access denied. You must be a group administrator or site administrator to delete this group.",
+        },
+        { status: 403 }
+      );
     }
 
     // Use a transaction to safely delete the group and all related data

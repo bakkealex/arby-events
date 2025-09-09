@@ -3,7 +3,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateICSFile, CalendarEvent } from "@/lib/calendar";
+import {
+  getEventVisibilityFilter,
+  getGroupVisibilityFilter,
+} from "@/lib/visibility-utils";
+import { UserRole } from "@/types";
 
+// User-facing API endpoint - Generate calendar (.ics) files for events user has access to
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,14 +22,27 @@ export async function GET(request: Request) {
     const eventId = searchParams.get("eventId");
     const groupId = searchParams.get("groupId");
 
+    // Create visibility context
+    const visibilityContext = {
+      userId: session.user.id,
+      userRole: session.user.role as UserRole,
+      isAuthenticated: true,
+    };
+
+    // Get visibility filters
+    const eventFilter = getEventVisibilityFilter(visibilityContext);
+    const groupFilter = getGroupVisibilityFilter(visibilityContext);
+
     let events;
 
     if (eventId) {
-      // Get single event
+      // Get single event with visibility checks
       const event = await prisma.event.findFirst({
         where: {
           id: eventId,
+          ...eventFilter,
           group: {
+            ...groupFilter,
             userGroups: {
               some: {
                 userId: session.user.id,
@@ -46,11 +65,13 @@ export async function GET(request: Request) {
 
       events = [event];
     } else if (groupId) {
-      // Get all events from a specific group
+      // Get all events from a specific group with visibility checks
       events = await prisma.event.findMany({
         where: {
           groupId: groupId,
+          ...eventFilter,
           group: {
+            ...groupFilter,
             userGroups: {
               some: {
                 userId: session.user.id,
@@ -70,9 +91,10 @@ export async function GET(request: Request) {
         },
       });
     } else {
-      // Get all events from user's subscribed events
+      // Get all events from user's subscribed events with visibility checks
       events = await prisma.event.findMany({
         where: {
+          ...eventFilter,
           eventSubscriptions: {
             some: {
               userId: session.user.id,

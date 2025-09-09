@@ -27,6 +27,40 @@ This is a full-stack event management web application built with:
 - **Hosting:** Vercel
 - **State management:** Use React state/hooks, optionally server actions – avoid unnecessary libraries
 
+## 🏗 Architecture Pattern (Hybrid Approach)
+
+**Direct Database Access (Admin/Internal):**
+
+- `/admin/*` pages - Complex admin interfaces with direct Prisma queries
+- `/mod/*` pages - Group administrator interfaces
+- Server components with shared service functions for business logic
+- Better performance for complex queries and aggregations
+- Simplified development for internal features
+
+**API Endpoints (Public/User-Facing):**
+
+- `/api/groups/*` - User group interactions (join/leave/list)
+- `/api/events/*` - User event interactions (subscribe/unsubscribe)
+- `/api/auth/*` - Authentication flows
+- Client components and external integrations
+- Consistent security and validation
+- Future mobile app and webhook support
+
+**Shared Services Pattern:**
+
+```
+src/lib/
+├── admin/           # Admin-specific services (direct DB)
+│   ├── groups-service.ts
+│   ├── users-service.ts
+│   └── events-service.ts
+├── user/            # User-facing services (for APIs)
+│   ├── groups-service.ts
+│   └── events-service.ts
+└── shared/          # Shared utilities
+    └── visibility-utils.ts
+```
+
 ## 🎨 Design System
 
 **Design Guidelines:**
@@ -105,12 +139,44 @@ className =
 
 ## API Structure
 
+**Public/User-Facing APIs (Keep as APIs):**
+
 - `/api/auth/*` - Authentication endpoints
-- `/api/users/*` - User management
-- `/api/groups/*` - Group management
-- `/api/events/*` - Event management
+- `/api/groups/*` - User group interactions (join/leave/list)
+- `/api/events/*` - User event interactions (subscribe/unsubscribe)
 - `/api/notifications/*` - Email notifications
 - `/api/calendar/*` - ICS file generation
+
+**Admin/Internal (Direct Database Access):**
+
+- Admin pages use direct Prisma queries via shared services
+- Group moderator pages use direct database access
+- Better performance for complex admin operations
+
+### Authorization Levels
+
+**Public Routes (No Auth Required):**
+
+- Public event listings
+- Authentication endpoints
+
+**User Routes (Authenticated Users):**
+
+- Join/leave groups
+- Subscribe/unsubscribe to events
+- View personal data
+
+**Group Admin Routes (Group Admins + Site Admins):**
+
+- Manage group members
+- Manage group events
+- Send group notifications
+
+**Site Admin Routes (Site Admins Only):**
+
+- Full platform management
+- User administration
+- Platform statistics
 
 ### Detailed API Endpoints
 
@@ -138,11 +204,11 @@ DELETE /api/users/[id]              // Delete user
 ### Groups
 
 ```
-GET    /api/groups                  // List groups
-POST   /api/groups                  // Create group
-GET    /api/groups/[id]             // Get group details
-PATCH  /api/groups/[id]             // Update group
-DELETE /api/groups/[id]             // Delete group
+GET    /api/groups                  // List groups (USERS ONLY)
+POST   /api/groups                  // Create group (ADMIN ONLY)
+GET    /api/groups/[id]             // Get group details (USERS ONLY)
+PATCH  /api/groups/[id]             // Update group (GROUP ADMIN / ADMIN ONLY)
+DELETE /api/groups/[id]             // Delete group (GROUP ADMIN / ADMIN ONLY)
 ```
 
 ### Events
@@ -177,17 +243,17 @@ GET    /api/events/[id]/calendar    // Download ICS file (user)
 ### Group Members
 
 ```
-GET    /api/groups/[id]/members                    // List group members
-POST   /api/groups/[id]/members                    // Add member to group
-DELETE /api/groups/[id]/members/[userId]           // Remove member from group
-PATCH  /api/groups/[id]/members/[userId]           // Update member role
+GET    /api/groups/[id]/members                    // List group members (MEMBERS / ADMIN ONLY)
+POST   /api/groups/[id]/members                    // Add member to group (GROUP ADMIN / ADMIN ONLY)
+DELETE /api/groups/[id]/members/[userId]           // Remove member from group (GROUP ADMIN / ADMIN ONLY)
+PATCH  /api/groups/[id]/members/[userId]           // Update member role (GROUP ADMIN / ADMIN ONLY)
 ```
 
 ### Group Actions
 
 ```
-POST   /api/groups/[id]/invite                     // Invite user to group
-POST   /api/groups/[id]/notify                     // Send group notification
+POST   /api/groups/[id]/invite                     // Invite user to group (GROUP ADMIN / ADMIN ONLY)
+POST   /api/groups/[id]/notify                     // Send group notification (GROUP ADMIN / ADMIN ONLY)
 ```
 
 ## Event Management Endpoints
@@ -230,6 +296,8 @@ GET    /api/admin/groups/[id]/export               // Export group data (admin)
 POST   /api/admin/groups/[id]/notifications        // Send group notification (admin)
 ```
 
+**Note:** Admin pages (`/admin/*`) use direct database access via shared services instead of API endpoints for better performance with complex queries.
+
 ### Admin Platform Management
 
 ```
@@ -251,11 +319,18 @@ GET    /api/calendar/[eventId]                     // Generate ICS file for even
 
 ## Database Schema
 
-- Users table (id, email, name, createdAt, updatedAt)
-- Groups table (id, name, description, createdBy, createdAt)
-- Events table (id, title, description, startDate, endDate, location, groupId, createdBy)
+- Users table (id, email, name, role, active, visible, createdAt, updatedAt)
+- Groups table (id, name, description, visible, createdBy, createdAt)
+- Events table (id, title, description, startDate, endDate, location, visible, groupId, createdBy)
 - UserGroups table (userId, groupId, role, joinedAt)
 - EventSubscriptions table (userId, eventId, subscribedAt)
+
+**Visibility System:**
+
+- Groups and Events have a `visible` boolean field for visibility control
+- Hidden groups are visible to: group admins, site admins
+- Hidden events are visible to: attendees, group admins, site admins
+- Visible items are visible to: all authenticated users
 
 ## Security Considerations
 
@@ -328,7 +403,9 @@ GET    /api/calendar/[eventId]                     // Generate ICS file for even
 - Each group may have multiple group administrators.
 - A group administrator may be group administrator in one group, but not in another group.
 - Users may not create groups.
-- Groups can be hidden from users that are not members, but visible to site administrators.
+- Groups can be hidden from users that are not members, but visible to site administrators and group administrators.
+- Hidden groups are only visible to: group admins, site admins
+- Visible groups are visible to: all authenticated users
 
 ## User registration
 
@@ -388,9 +465,12 @@ GET    /api/calendar/[eventId]                     // Generate ICS file for even
 
 ## 🧠 Instructions to Copilot
 
+- **Architecture**: Use hybrid approach - direct DB for admin pages, APIs for user interactions
 - **Types**: Define in external files in `/types` - not inline interfaces
 - **File structure**: Follow established pattern with `/app` for pages and `/lib` for utilities
 - **API Routes**: Place in `/app/api` with proper error handling and type safety
+- **Admin Services**: Create shared services in `/lib/admin/` for complex admin operations
+- **User Services**: Create services in `/lib/user/` for API-consumed operations
 - **GDPR**: Remember version tracking and consent validation for new features
 - **Dark Mode**: Ensure all components support dark mode with proper contrast
 - **Terminal**: Do not start a new terminal and to run commands from there. There should always be a terminal running the app.

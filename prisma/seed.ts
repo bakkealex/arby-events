@@ -24,7 +24,7 @@ async function main() {
   const siteAdmin = await prisma.user.create({
     data: {
       email: "admin@bakke.me",
-      name: "Sarah Chen",
+      name: "Site Admin",
       password: hashedPassword,
       role: UserRole.ADMIN,
       active: true,
@@ -41,7 +41,7 @@ async function main() {
   const socialAdmin = await prisma.user.create({
     data: {
       email: "social.admin@bakke.me",
-      name: "Mike Rodriguez",
+      name: "Social Adminary",
       password: hashedPassword,
       role: UserRole.USER,
       active: true,
@@ -55,7 +55,7 @@ async function main() {
   const communityAdmin = await prisma.user.create({
     data: {
       email: "community.admin@bakke.me",
-      name: "Emma Thompson",
+      name: "Community Main-Adminer",
       password: hashedPassword,
       role: UserRole.USER,
       active: true,
@@ -69,7 +69,7 @@ async function main() {
   const communityCoAdmin = await prisma.user.create({
     data: {
       email: "community.coadmin@bakke.me",
-      name: "David Park",
+      name: "Community Co-Adminer",
       password: hashedPassword,
       role: UserRole.USER,
       active: true,
@@ -84,7 +84,7 @@ async function main() {
   const user1 = await prisma.user.create({
     data: {
       email: "alex.volunteer@bakke.me",
-      name: "Alex Johnson",
+      name: "Alex Volunteera",
       password: hashedPassword,
       role: UserRole.USER,
       active: true,
@@ -98,7 +98,7 @@ async function main() {
   const user2 = await prisma.user.create({
     data: {
       email: "jessica.helper@bakke.me",
-      name: "Jessica Williams",
+      name: "Jessica Helper",
       password: hashedPassword,
       role: UserRole.USER,
       active: true,
@@ -112,7 +112,7 @@ async function main() {
   const user3 = await prisma.user.create({
     data: {
       email: "chris.volunteer@bakke.me",
-      name: "Chris Anderson",
+      name: "Chris Volunteery",
       password: hashedPassword,
       role: UserRole.USER,
       active: true,
@@ -126,7 +126,7 @@ async function main() {
   const user4 = await prisma.user.create({
     data: {
       email: "maria.helper@bakke.me",
-      name: "Maria Garcia",
+      name: "Maria Helperson",
       password: hashedPassword,
       role: UserRole.USER,
       active: true,
@@ -140,7 +140,7 @@ async function main() {
   const user5 = await prisma.user.create({
     data: {
       email: "tom.volunteer@bakke.me",
-      name: "Tom Wilson",
+      name: "Tom Volunteerson",
       password: hashedPassword,
       role: UserRole.USER,
       active: true,
@@ -183,7 +183,18 @@ async function main() {
     },
   });
 
-  console.log("📚 Created 3 volunteer groups");
+  // Create a hidden group for testing visibility
+  const hiddenGroup = await prisma.group.create({
+    data: {
+      name: "Special Operations",
+      description:
+        "Confidential volunteer operations and exclusive events for selected members only",
+      createdBy: siteAdmin.id,
+      visible: false, // Hidden group
+    },
+  });
+
+  console.log("📚 Created 4 volunteer groups (3 visible, 1 hidden)");
 
   // Add users to groups
   await prisma.userGroup.createMany({
@@ -233,6 +244,15 @@ async function main() {
         groupId: communityGroup.id,
         role: GroupRole.MEMBER,
       },
+
+      // Hidden Special Operations Group (limited membership)
+      {
+        userId: siteAdmin.id,
+        groupId: hiddenGroup.id,
+        role: GroupRole.ADMIN,
+      },
+      { userId: user1.id, groupId: hiddenGroup.id, role: GroupRole.MEMBER },
+      { userId: user2.id, groupId: hiddenGroup.id, role: GroupRole.MEMBER },
     ],
   });
 
@@ -542,6 +562,72 @@ async function main() {
 
   console.log("📅 Created Community Outreach events");
 
+  // Special Operations Group Events (3 future: 2 hidden, 1 visible)
+
+  // Hidden event 1
+  const secretMissionStart = createFutureDate(7, 20);
+  const secretMission = await prisma.event.create({
+    data: {
+      title: "Classified Operation Alpha",
+      description:
+        "Confidential mission briefing and execution. Need-to-know basis only.",
+      startDate: secretMissionStart,
+      endDate: createFutureDateEnd(secretMissionStart, 3),
+      location: "Secure Location TBD",
+      groupId: hiddenGroup.id,
+      createdBy: siteAdmin.id,
+      visible: false, // Hidden event
+    },
+  });
+
+  // Hidden event 2
+  const covertTrainingStart = createFutureDate(14, 18);
+  const covertTraining = await prisma.event.create({
+    data: {
+      title: "Advanced Tactical Training",
+      description:
+        "Specialized training session for experienced operatives. Equipment will be provided.",
+      startDate: covertTrainingStart,
+      endDate: createFutureDateEnd(covertTrainingStart, 4),
+      location: "Training Facility - Sector 7",
+      groupId: hiddenGroup.id,
+      createdBy: siteAdmin.id,
+      visible: false, // Hidden event
+    },
+  });
+
+  // Visible event in hidden group
+  const teamBuildingStart = createFutureDate(21, 16);
+  const teamBuilding = await prisma.event.create({
+    data: {
+      title: "Team Building Workshop",
+      description:
+        "Trust exercises and team coordination activities. Open to all group members.",
+      startDate: teamBuildingStart,
+      endDate: createFutureDateEnd(teamBuildingStart, 3),
+      location: "Mountain Retreat Center",
+      groupId: hiddenGroup.id,
+      createdBy: siteAdmin.id,
+      visible: true, // Visible event in hidden group
+    },
+  });
+
+  console.log("📅 Created Special Operations events (2 hidden, 1 visible)");
+
+  // Make one random existing event hidden for testing
+  const hiddenBowlingStart = createFutureDate(8, 19);
+  const hiddenBowlingEvent = await prisma.event.update({
+    where: { id: futureBowling.id },
+    data: {
+      title: "Secret Team Bowling Tournament",
+      description:
+        "Exclusive bowling tournament for select members only. Invitation required.",
+      visible: false, // Make this event hidden
+    },
+  });
+
+  console.log("📅 Updated one random event to be hidden for testing");
+
   // Create Event Subscriptions with realistic volunteer participation
   await prisma.eventSubscription.createMany({
     data: [
@@ -578,6 +664,14 @@ async function main() {
       { userId: user3.id, eventId: futureBeachCleanup.id },
       { userId: user4.id, eventId: futureCharityRun.id },
       { userId: user5.id, eventId: futureCharityRun.id },
+
+      // Special Operations Events - Limited access
+      { userId: siteAdmin.id, eventId: secretMission.id },
+      { userId: user1.id, eventId: secretMission.id },
+      { userId: user2.id, eventId: covertTraining.id },
+      { userId: siteAdmin.id, eventId: teamBuilding.id },
+      { userId: user1.id, eventId: teamBuilding.id },
+      { userId: user2.id, eventId: teamBuilding.id },
     ],
   });
 
@@ -589,12 +683,17 @@ async function main() {
     "- 10 Users (1 Site Admin, 3 Group Admins, 6 Regular volunteers)"
   );
   console.log(
-    "- 3 Groups (Gaming Volunteers, Social Activities, Community Outreach)"
+    "- 4 Groups (3 visible: Gaming, Social, Community + 1 hidden: Special Operations)"
   );
+  console.log("- 22 Events total:");
+  console.log("  • Gaming: 5 events (3 future + 2 past)");
+  console.log("  • Social: 5 events (3 future + 2 past, 1 hidden)");
+  console.log("  • Community: 9 events (5 future + 4 past)");
+  console.log("  • Special Ops: 3 events (all future, 2 hidden + 1 visible)");
+  console.log("- 34 Event subscriptions across all groups");
   console.log(
-    "- 18 Events (5 Gaming: 3 future + 2 past, 5 Social: 3 future + 2 past, 9 Community: 5 future + 4 past)"
+    "- Visibility testing: 1 hidden group, 3 hidden events, 1 random hidden event"
   );
-  console.log("- 28 Event subscriptions across all groups");
   console.log("\n🔐 Login credentials:");
   console.log("- Site Admin: admin@bakke.me / 123456");
   console.log("- Gaming Admin: admin@bakke.me / 123456 (same as site admin)");
