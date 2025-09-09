@@ -57,13 +57,8 @@ className = "bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white";
 className =
   "bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700";
 
-// Buttons (primary)
-className =
-  "bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white";
-
-// Buttons (secondary)
-className =
-  "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 border-2 border-blue-600 dark:border-blue-400";
+// Buttons
+See `src/app/globals.css` for button styles and variants.
 
 // Form inputs
 className =
