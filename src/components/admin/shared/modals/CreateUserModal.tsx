@@ -104,7 +104,7 @@ export default function CreateUserModal({
           <Button type="button" onClick={onClose} variant="neutral" disabled={loading}>
             Cancel
           </Button>
-          <Button type="submit" className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600" disabled={loading}>
+          <Button type="submit" disabled={loading}>
             {loading ? "Creating..." : "Create User"}
           </Button>
         </ActionRow>

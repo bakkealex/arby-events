@@ -50,7 +50,7 @@ export default async function DiscoverGroupsPage() {
         <div className="flex space-x-3">
           <Link
             href="/groups"
-            className="px-4 py-2 bg-gray-600 dark:bg-gray-500 text-white rounded hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+            className="btn btn-secondary"
           >
             My Groups
           </Link>
@@ -96,7 +96,7 @@ export default async function DiscoverGroupsPage() {
                 <div className="flex space-x-2">
                   <Link
                     href={`/groups/${group.id}`}
-                    className="flex-1 bg-gray-600 dark:bg-gray-500 text-white text-center py-2 px-3 rounded hover:bg-gray-700 dark:hover:bg-gray-600 text-sm transition-colors"
+                    className="flex-1 btn btn-sm btn-primary"
                   >
                     View Details
                   </Link>
@@ -107,7 +107,7 @@ export default async function DiscoverGroupsPage() {
                   >
                     <button
                       type="submit"
-                      className="w-full bg-green-600 dark:bg-green-500 text-white py-2 px-3 rounded hover:bg-green-700 dark:hover:bg-green-600 text-sm transition-colors"
+                      className="w-full btn btn-sm btn-success"
                     >
                       Request to Join
                     </button>

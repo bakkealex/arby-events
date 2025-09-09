@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MagnifyingGlassIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import { useDebounce } from "@/hooks/useDebounce";
+import GroupMultiSelect from "./GroupMultiSelect";
 
 type TimeFilter = "upcoming" | "past" | "all";
 type SortOption =
@@ -95,11 +96,10 @@ export default function EventFilters({
             <button
               key={key}
               onClick={() => setTimeFilter(key as TimeFilter)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                timeFilter === key
-                  ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${timeFilter === key
+                ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
+                : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                }`}
             >
               {label} ({count})
             </button>
@@ -109,11 +109,10 @@ export default function EventFilters({
         {/* Advanced Filters Toggle */}
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-            showFilters || hasActiveFilters
-              ? "border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-              : "border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          }`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${showFilters || hasActiveFilters
+            ? "border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+            : "border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
         >
           <FunnelIcon className="h-4 w-4" />
           Filters{" "}
@@ -147,7 +146,7 @@ export default function EventFilters({
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search by title or description..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 h-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -157,6 +156,13 @@ export default function EventFilters({
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Groups ({selectedGroups.length} selected)
             </label>
+            <GroupMultiSelect
+              groups={groups}
+              selectedGroups={selectedGroups}
+              onChange={(ids) => setSelectedGroups(ids)}
+              maxHeight="max-h-56"
+            />
+            {/*
             <div className="space-y-2 max-h-32 overflow-y-auto">
               {groups.map(group => (
                 <label key={group.id} className="flex items-center">
@@ -171,7 +177,7 @@ export default function EventFilters({
                   </span>
                 </label>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* Sort */}
@@ -182,7 +188,7 @@ export default function EventFilters({
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value as SortOption)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 h-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="date-desc">Date (Newest First)</option>
               <option value="date-asc">Date (Oldest First)</option>

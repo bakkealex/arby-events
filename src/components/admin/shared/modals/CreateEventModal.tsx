@@ -157,7 +157,7 @@ export default function CreateEventModal({
           <Button type="button" variant="neutral" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading || (!groupId && !formData.groupId)} className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700">
+          <Button type="submit" disabled={isLoading || (!groupId && !formData.groupId)}>
             {isLoading ? "Creating..." : "Create Event"}
           </Button>
         </ActionRow>

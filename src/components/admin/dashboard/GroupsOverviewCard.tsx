@@ -90,13 +90,13 @@ export default function GroupsOverviewCard({ stats }: { stats: GroupStats }) {
       <div className="grid grid-cols-2 gap-2">
         <Link
           href="/admin/groups/create"
-          className="px-3 py-2 bg-green-600 text-white text-center text-sm rounded hover:bg-green-700 transition-colors"
+          className="btn btn-sm btn-success"
         >
           Create Group
         </Link>
         <Link
           href="/admin/groups"
-          className="px-3 py-2 bg-blue-600 text-white text-center text-sm rounded hover:bg-blue-700 transition-colors"
+          className="btn btn-sm btn-primary"
         >
           Manage Groups
         </Link>

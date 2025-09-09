@@ -186,7 +186,7 @@ export default function AddMemberModal({ open, onClose, groupId }: AddMemberModa
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                     <p className="text-xs text-gray-400 dark:text-gray-500">Created: {new Date(user.createdAt).toLocaleDateString()}</p>
                   </div>
-                  <Button type="button" onClick={() => addMember(user.id)} disabled={loading} className="ml-3 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700">
+                  <Button type="button" onClick={() => addMember(user.id)} disabled={loading} className="ml-3 btn btn-success">
                     <UserPlusIcon className="h-3 w-3 mr-1" />
                     {loading ? "Adding..." : "Add"}
                   </Button>

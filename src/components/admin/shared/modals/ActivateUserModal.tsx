@@ -132,8 +132,8 @@ export default function ActivateUserModal({
             </Button>
             <Button
               type="submit"
+              variant="success"
               disabled={loading || !isValidConfirmation}
-              className="bg-green-600 hover:bg-green-700"
             >
               {loading ? "Activating..." : "Activate User"}
             </Button>

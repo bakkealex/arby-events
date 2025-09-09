@@ -52,12 +52,12 @@ export default async function EventsPage() {
   const { upcomingEvents, pastEvents } = await getUserEvents(user.userId);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">My Events</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Events</h1>
         <a
           href="/groups"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="btn btn-secondary"
         >
           Browse Groups
         </a>
@@ -65,7 +65,7 @@ export default async function EventsPage() {
 
       {/* Upcoming Events */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-6 text-green-700">
+        <h2 className="text-2xl font-semibold mb-6 text-green-700 dark:text-green-300">
           Upcoming Events
         </h2>
         {upcomingEvents.length > 0 ? (
@@ -73,26 +73,26 @@ export default async function EventsPage() {
             {upcomingEvents.map(({ event }) => (
               <div
                 key={event.id}
-                className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-green-500 dark:border-green-400"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {event.title}
                   </h3>
                   <a
                     href={`/api/calendar/${event.id}`}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    className="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200 text-sm"
                     title="Download Calendar"
                   >
-                    📅 .ics
+                    \ud83d\udcc5 .ics
                   </a>
                 </div>
 
-                <p className="text-gray-600 mb-3 line-clamp-2">
+                <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
                   {event.description}
                 </p>
 
-                <div className="space-y-1 text-sm text-gray-700 mb-3">
+                <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300 mb-3">
                   <p>
                     <strong>Date:</strong>{" "}
                     {new Date(event.startDate).toLocaleDateString(
@@ -114,7 +114,7 @@ export default async function EventsPage() {
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded">
                     Subscribed
                   </span>
                   <form
@@ -123,7 +123,7 @@ export default async function EventsPage() {
                   >
                     <button
                       type="submit"
-                      className="text-red-600 hover:text-red-800 text-sm"
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm"
                     >
                       Unsubscribe
                     </button>
@@ -133,11 +133,11 @@ export default async function EventsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <p className="text-gray-600 mb-4">No upcoming events found.</p>
+          <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">No upcoming events found.</p>
             <a
               href="/groups"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             >
               Join Groups to Find Events
             </a>
@@ -147,7 +147,7 @@ export default async function EventsPage() {
 
       {/* Past Events */}
       <section>
-        <h2 className="text-2xl font-semibold mb-6 text-gray-700">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300">
           Event History
         </h2>
         {pastEvents.length > 0 ? (
@@ -155,7 +155,7 @@ export default async function EventsPage() {
             {pastEvents.map(({ event }) => (
               <div
                 key={event.id}
-                className="bg-gray-50 rounded-lg shadow-sm p-6 border-l-4 border-gray-400"
+                className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm p-6 border-l-4 border-gray-400 dark:border-gray-700"
               >
                 <h3 className="text-lg font-semibold text-gray-700 mb-3">
                   {event.title}
@@ -177,15 +177,15 @@ export default async function EventsPage() {
                   </p>
                 </div>
 
-                <span className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded">
+                <span className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs rounded">
                   Completed
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 bg-gray-50 rounded-lg">
-            <p className="text-gray-600">No past events found.</p>
+          <div className="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <p className="text-gray-600 dark:text-gray-300">No past events found.</p>
           </div>
         )}
       </section>

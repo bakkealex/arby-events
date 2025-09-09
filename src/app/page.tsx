@@ -25,13 +25,13 @@ export default async function Home() {
             <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
               <Link
                 href="/dashboard"
-                className="block w-full sm:w-auto bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200"
+                className="block w-full sm:w-auto btn btn-lg btn-primary font-bold text-lg"
               >
                 Go to Dashboard
               </Link>
               <Link
                 href="/groups"
-                className="block w-full sm:w-auto bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 font-bold py-3 px-8 rounded-lg text-lg border-2 border-blue-600 dark:border-blue-400 transition duration-200"
+                className="block w-full sm:w-auto btn btn-lg btn-secondary font-bold text-lg"
               >
                 Browse Groups
               </Link>
@@ -40,13 +40,13 @@ export default async function Home() {
             <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
               <Link
                 href="/auth/signup"
-                className="block w-full sm:w-auto bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200"
+                className="block w-full sm:w-auto btn btn-lg btn-primary font-bold text-lg"
               >
                 Get Started
               </Link>
               <Link
                 href="/auth/signin"
-                className="block w-full sm:w-auto bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 font-bold py-3 px-8 rounded-lg text-lg border-2 border-blue-600 dark:border-blue-400 transition duration-200"
+                className="block w-full sm:w-auto btn btn-lg btn-secondary font-bold text-lg"
               >
                 Sign In
               </Link>

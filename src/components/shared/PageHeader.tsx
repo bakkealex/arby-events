@@ -8,7 +8,7 @@ export default function PageHeader() {
 
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
             <Link
@@ -47,10 +47,10 @@ export default function PageHeader() {
                     </Link>
                   )}
                 </nav>
+                {/* TODO: Update signout page */}
                 <Link
                   href="/api/auth/signout"
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition
-                      dark:bg-red-600 dark:hover:bg-red-700"
+                  className="btn btn-danger"
                 >
                   Sign Out
                 </Link>
@@ -66,8 +66,7 @@ export default function PageHeader() {
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium
-                      dark:bg-blue-600 dark:hover:bg-blue-700"
+                  className="btn btn-primary"
                 >
                   Sign Up
                 </Link>

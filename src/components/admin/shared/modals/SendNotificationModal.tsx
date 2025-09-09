@@ -186,7 +186,7 @@ export default function SendNotificationModal({ open, onClose, groupId }: SendNo
             {result ? "Close" : "Cancel"}
           </Button>
           {!result && (
-            <Button type="submit" disabled={isLoading} className="bg-yellow-600 hover:bg-yellow-700">
+            <Button type="submit" variant="warning" disabled={isLoading}>
               {isLoading ? "Sending..." : formData.scheduleFor ? "Schedule Notification" : "Send Now"}
             </Button>
           )}

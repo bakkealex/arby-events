@@ -137,13 +137,13 @@ export default async function GroupsPage() {
                 <div className="flex space-x-2">
                   <a
                     href={`/groups/${userGroup.group.id}`}
-                    className="flex-1 bg-blue-600 dark:bg-blue-500 text-white text-center py-2 px-3 rounded hover:bg-blue-700 dark:hover:bg-blue-600 text-sm transition-colors"
+                    className="flex-1 btn btn-sm btn-primary"
                   >
                     View Group
                   </a>
                   <a
                     href={`/groups/${userGroup.group.id}/events`}
-                    className="flex-1 bg-purple-600 dark:bg-purple-500 text-white text-center py-2 px-3 rounded hover:bg-purple-700 dark:hover:bg-purple-600 text-sm transition-colors"
+                    className="flex-1 btn btn-sm btn-purple"
                   >
                     View Events
                   </a>
@@ -158,7 +158,7 @@ export default async function GroupsPage() {
             </p>
             <a
               href="/groups/discover"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+              className="inline-flex items-center px-4 py-2 btn btn-primary"
             >
               Discover Groups
             </a>
@@ -177,7 +177,7 @@ export default async function GroupsPage() {
           </p>
           <a
             href="/groups/discover"
-            className="inline-flex items-center justify-center bg-blue-600 dark:bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium"
+            className="inline-flex items-center px-4 py-2 btn btn-primary"
           >
             Discover Groups
             <svg

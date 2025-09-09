@@ -1,15 +1,18 @@
 "use client";
 import { cn } from "@/lib/cn";
 import { ComponentProps, ReactNode } from "react";
+import { success } from "zod/v4";
 
-export function Button({ variant = "primary", className, ...rest }: ComponentProps<"button"> & { variant?: "primary" | "secondary" | "danger" | "neutral" }) {
+export function Button({ variant = "primary", className, ...rest }: ComponentProps<"button"> & { variant?: "primary" | "secondary" | "danger" | "neutral" | "warning" | "success" }) {
   const variants = {
-    primary: "text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600",
-    secondary: "text-blue-600 border-2 border-blue-600 bg-white hover:bg-gray-50 dark:text-blue-400 dark:border-blue-400 dark:bg-gray-700 dark:hover:bg-gray-600",
-    danger: "text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600",
-    neutral: "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600",
+    primary: "btn btn-primary",
+    secondary: "btn btn-secondary",
+    success: "btn btn-success",
+    warning: "btn btn-warning",
+    danger: "btn btn-danger",
+    neutral: "btn btn-neutral",
   } as const;
-  return <button className={cn("px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50", variants[variant], className)} {...rest} />;
+  return <button className={cn("text-sm font-medium rounded-md disabled:opacity-50", variants[variant], className)} {...rest} />;
 }
 
 export function Panel({ className, children }: { className?: string; children: ReactNode }) {
